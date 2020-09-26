@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{ store.name }} &mdash; {{ page.name }}</title>
+
+  <meta charset="utf-8">
+  <meta name="description" content="{{ page.meta_description }}">
+  <meta name="keywords" content="{{ page.meta_keywords }}">
+
+  <link href="{{ theme | theme_css_url }}" media="screen" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css" integrity="sha512-WEQNv9d3+sqyHjrqUZobDhFARZDko2wpWdfcpv44lsypsSuMO0kHGd3MQ8rrsBn/Qa39VojphdU6CMkpJUmDVw==" crossorigin="anonymous" />
+  <script src="{{ 'api' | theme_js_url }}"></script>
+<link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <script src="https://kit.fontawesome.com/d4eab0a8e6.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"
+    integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"
+    integrity="sha512-IsNh5E3eYy3tr/JiX2Yx4vsCujtkhwl7SLqgnwLNgf04Hrt9BT9SXlLlZlWx+OK4ndzAoALhsMNcCmkggjZB1w=="
+    crossorigin="anonymous"></script>
+  {{ head_content }}
+</head>
+
+<body id="{{ page.permalink }}" class="{{ page.category }}">
+  {% if errors != blank %}
+  <ul class="unstyled errors">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if page.category == 'custom' %}
+  <div id="custom_page">
+    {{ page_content | paragraphs }}
+  </div>
+  {% else %}
+  {{ page_content }}
+  {% endif %}
+
+  <script>
+    $(document).ready(function () {
+
+        $('#menu').hide();
+
+      let defaultCursor = document.querySelector(".cursor");
+      let shopImage = document.querySelectorAll(".container > .items");
+
+      window.addEventListener("mousemove", cursor);
+
+      function cursor(e) {
+        defaultCursor.style.top = e.pageY + "px";
+        defaultCursor.style.left = e.pageX + "px";
+      }
+
+      shopImage.forEach((item) => {
+        item.addEventListener("mouseleave", () => {
+          defaultCursor.classList.remove("grow-cursor");
+          item.classList.remove("grow-image");
+        });
+        item.addEventListener("mouseover", () => {
+          defaultCursor.classList.add("grow-cursor");
+          item.classList.add("grow-image");
+        });
+      });
+
+
+      $('#btn').on('click', function () {
+        $('#menu').show('slow');
+        $(this).addClass('clicked');
+        $(this).toggleClass('hover');
+        $(this).fadeTo('slow', 0.1);
+      })
+
+      $('#close').on('click', function () {
+        $('#menu').hide('slow');
+        $('#btn').removeClass('clicked', 'slow');
+      })
+
+      $('a, i, #btn').hover(function () {
+        $('.cursor').toggleClass("grow-cursor");
+      })
+
+      $('a, i').hover(function () {
+        $(this).toggleClass('hover');
+      })
+
+      $('i').on('click', function () {
+        $('#btn').fadeTo('slow', 1)
+      })
+
+      $('#custom-page a').addClass('ajax-popup-link');
+
+      $('.ajax-popup-link, #submit').magnificPopup({
+        type: 'ajax',
+        key: 'ajax-popup',
+        preloader: false,
+        fixedContentPos: false,
+        fixedBgPos: true,
+        closeOnBgClick: false,
+        closeBtnInside: true,
+        cursor: 'mfp-ajax-cur', // CSS class that will be added to body during the loading (adds "progress" cursor)
+        tError: '<a href="%url%">The content</a> could not be loaded.',
+        callbacks: {
+          open: async function () {
+            await success();
+          },
+          afterClose: async function () {
+            window.location.reload();
+          },
+        }
+      });
+
+      $(document).on('click', '#validate', function () {
+        $(this).closest('form').ajaxForm({
+          beforeSubmit: validate,
+        });
+        function validate(formData, $form, options) {
+          for (var i = 0; i < formData.length; i++) {
+            if (!formData[i].value && formData[i].name != 'submit') {
+              $('.form-message').html('<p>Please enter a value for all related fields!<br/> The form has <strong>not</strong> been submitted</p>');
+              return false;
+            }
+          }
+          $('.form-message').html('<p>Your message has been sent</p>');
+          $('#contact_form > ul').hide();
+          $('#contact').append('<a href="/products" class="return-to-shop-link">Return to Shop</a>');
+        }
+      });
+
+      $(document).on('focus', 'input', function () {
+        $('.form-message').html(null);
+      });
+
+      $(document).on('click', '#submit', function () {
+        $.ajax({
+          type: "post",
+        });
+
+        if ($(this).hasClass('remove')) {
+          $(this).closest('li').find('input[id$=_qty]').val(0);
+
+        }
+        $(this).closest('form').ajaxSubmit();
+      });
+
+      $(document).magnificPopup({
+        delegate: '#submit',
+      });
+    });
+
+  </script>
+
+</body>
+
+</html>

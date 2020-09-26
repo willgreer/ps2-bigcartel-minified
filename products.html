@@ -1,0 +1,65 @@
+<div class="cursor"></div>
+
+<header>
+  <div class="title-left">
+    <h1>
+      <a href="/" title="{{ store.name | escape }}">
+        Memory Card<span>(QCK)</span>/1 <br>
+        733 KB free
+      </a>
+    </h1>
+  </div>
+
+  <div class="title-right">
+    <h1>
+      <a href="/cart" class="ajax-popup-link">
+        Your System <br>
+        Configuration
+        <span id='#main_total'>({{ cart.subtotal | money_with_sign }})</span>
+      </a>
+    </h1>
+  </div>
+</header>
+<div class="container-wrap">
+
+{% paginate products from products.current by theme.products_per_page %}
+{% if products != blank %}
+  <div class="container">
+    <ul class="items">
+      {% for product in products %}
+      <li class="items">
+        <a href="{{ product.url }}" class="ajax-popup-link">
+          <img alt="Image of {{ product.name | escape }}"
+            src="{{ product.image | product_image_url size: theme.product_image_size }}">
+        </a>
+      </li>
+    </ul>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<p>No products found.</p>
+{% endif %}
+{% endpaginate %}
+
+<div class="menu-wrap">
+  <h1 id="btn">Options</h1>
+  <div class="menu" id="menu">
+    <div class="hidden_menu_wrap">
+      <div class="hidden_menu">
+        <div class="menu-close-btn">
+          <i class="far fa-times-circle" id="close"></i>
+        </div>
+        <ul>
+          {% for page in pages.all %}
+          <li id="custom-page">{{ page | link_to }}</li>
+          {% endfor %}
+          <li><a href="/contact" class='ajax-popup-link'>Contact</a></li>
+          {% if store.website != blank %}
+          <li><a href="{{ store.website }}">Back to Site</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
